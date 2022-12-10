@@ -1,1 +1,1 @@
-100 resources/body_default.png resources/eyes_default.png resources/glasses_default.png resources/smile_happy.png
+100 0 resources/body_default.png resources/eyes_default.png resources/glasses_default.png resources/smile_happy.png

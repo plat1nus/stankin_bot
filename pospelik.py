@@ -1,19 +1,17 @@
 class Pospelik:
     def __init__(self):
-        self.saturation = 100
-        self.body_path = "resources/body_default.png"
-        self.eyes_path = "resources/eyes_default.png"
-        self.glasses_path = "resources/glasses_default.png"
-        self.smile_path = "resources/smile_happy.png"
+
+        self.get_info_from_file()
 
     def get_info_from_file(self):
         with open("pospelik_info.txt", "r") as f:
             data = f.readline().split()
             self.saturation = int(data[0])
-            self.body_path = data[1]
-            self.eyes_path = data[2]
-            self.glasses_path = data[3]
-            self.smile_path = data[4]
+            self.money = int(data[1])
+            self.body_path = data[2]
+            self.eyes_path = data[3]
+            self.glasses_path = data[4]
+            self.smile_path = data[5]
 
     def put_info_to_file(self):
         with open("pospelik_info.txt", "rw") as f:
@@ -31,3 +29,6 @@ class Pospelik:
 
     def update_eyes(self, upd_eyes):
         self.eyes_path = upd_eyes
+
+    def update_money(self, upd_money):
+        self.money = upd_money
