@@ -7,6 +7,7 @@ API_TOKEN = '5855113265:AAHR19MCB9qnlKQRnpRImGpvwxO4WrzOi2o'
 
 logging.basicConfig(level=logging.INFO)
 
+SUBJECTS = ("Химия", "Русский", "Биология")
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
@@ -44,37 +45,44 @@ async def cmd_start(message: types.Message):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     buttons = ["Химия", "Русский", "Биология"]
     keyboard.add(*buttons)
-    await message.answer("Как подавать котлеты?", reply_markup=keyboard)
 
 
 @dp.message_handler(Text(equals="Химия"))
 async def chemistry(message: types.Message):
+    task, answ = get_random_task(chemistry_tasks)
+    print(answ)
+    @dp.message_handler()
+    async def answer(message: types.Message):
+        if message.text == answ.strip():
+            await message.answer("Правильно!")
+        else:
+            await message.answer("Неправильно!")
     await message.reply(task)
     
 @dp.message_handler(Text(equals="Русский"))
 async def russian(message: types.Message):
     task, answ = get_random_task(russian_tasks)
-    last_message = task
+    print(answ)
+    @dp.message_handler()
+    async def answer(message: types.Message):
+        if message.text == answ.strip():
+            await message.answer("Правильно!")
+        else:
+            await message.answer("Неправильно!")
     await message.reply(task)
 
 
 @dp.message_handler(Text(equals="Биология"))
 async def biology(message: types.Message):
     task, answ = get_random_task(biology_tasks)
-    last_message = task
-
+    print(answ)
+    @dp.message_handler()
+    async def answer(message: types.Message):
+        if message.text == answ.strip():
+            await message.answer("Правильно!")
+        else:
+            await message.answer("Неправильно!")
     await message.reply(task)
-
-@dp.message_handler()
-async def get_message(message: types.Message):
-    # try:
-    #     if message.text == answ:
-    #         await message.reply("+1")
-    #     else:
-    #         await message.reply("-1")
-    # except NameError:
-    #     print('error with name')
-    print(message.text)
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
