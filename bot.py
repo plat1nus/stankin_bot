@@ -55,6 +55,8 @@ async def chemistry(message: types.Message):
     async def answer(message: types.Message):
         if message.text == answ.strip():
             await message.answer("Правильно!")
+        elif messagee.text == "Стоп!":
+            cmd_start(message)
         else:
             await message.answer("Неправильно!")
     await message.reply(task)
@@ -67,6 +69,8 @@ async def russian(message: types.Message):
     async def answer(message: types.Message):
         if message.text == answ.strip():
             await message.answer("Правильно!")
+        elif messagee.text == "Стоп!":
+            cmd_start(message)
         else:
             await message.answer("Неправильно!")
     await message.reply(task)
@@ -80,6 +84,8 @@ async def biology(message: types.Message):
     async def answer(message: types.Message):
         if message.text == answ.strip():
             await message.answer("Правильно!")
+        elif message.text == "Стоп!":
+            await cmd_start(message)
         else:
             await message.answer("Неправильно!")
     await message.reply(task)
