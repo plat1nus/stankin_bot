@@ -1,21 +1,5 @@
+import telebot
 import random
-import logging
-from aiogram import Bot, Dispatcher, executor, types
-from aiogram.dispatcher.filters import Text
-
-from pospelik import Pospelik
-from image_creator import create_img
-
-API_TOKEN = '5855113265:AAHR19MCB9qnlKQRnpRImGpvwxO4WrzOi2o'
-
-logging.basicConfig(level=logging.INFO)
-
-SUBJECTS = ("Химия", "Русский", "Биология")
-
-bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
-
-user = Pospelik()
 
 
 def get_tasks_dict(src):
@@ -47,77 +31,41 @@ biology_tasks = get_tasks_dict("Biology.txt")
 chemistry_tasks = get_tasks_dict("Chemistry.txt")
 
 
-@dp.message_handler(commands=["start"])
-async def cmd_start(message: types.Message):
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    buttons = ["Химия", "Русский", "Биология", "Профиль"]
-    keyboard.add(*buttons)
+class Bot:
+    bot = telebot.TeleBot("5855113265:AAHR19MCB9qnlKQRnpRImGpvwxO4WrzOi2o")
+    SUBJECTS = ('Химия', 'Русский', 'Биология')
 
+    def __init__(self):
+        self.subjects = ('Химия', 'Русский', 'Биология')
+        self.task = ''
+        self.answer = ''
 
-@dp.message_handler(Text(equals="Химия"))
-async def chemistry(message: types.Message):
-    task, answ = get_random_task(chemistry_tasks)
-    print(answ)
+    @bot.message_handler(commands=['start', 'help'])
+    def send_welcome(message):
+        bot.reply_to(message, "Чем будем кормить Поспелика?")
 
-    @dp.message_handler()
-    async def answer(message: types.Message):
-        if message.text == answ.strip():
-            await message.answer("Правильно!")
-        elif message.text == "Стоп!":
-            keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-            buttons = ["Химия", "Русский", "Биология"]
-            keyboard.add(*buttons)
+    @bot.message_handler(func=lambda message: True)
+    def get_task(self, message):
+        text_message = message.text
+        if text_message in self.subjects:
+            if text_message == 'Химия':
+                self.task, self.answer = get_random_task(chemistry_tasks)
+            elif text_message == 'Русский':
+                self.task, self.answer = get_random_task(russian_tasks)
+            elif text_message == 'Биология':
+                self.task, self.answer = get_random_task(biology_tasks)
+            bot.register_next_step_handler(message, self.check_answer)
+
+    def check_answer(self, message):
+        if self.answer == message:
+            bot.reply_to(message, "Правильно")
         else:
-            await message.answer("Неправильно!")
+            bot.reply_to(message, "Неправильно")
 
-    await message.reply(task)
-
-
-@dp.message_handler(Text(equals="Русский"))
-async def russian(message: types.Message):
-    task, answ = get_random_task(russian_tasks)
-    print(answ)
-
-    @dp.message_handler()
-    async def answer(message: types.Message):
-        if message.text == answ.strip():
-            await message.answer("Правильно!")
-        elif message.text == "Стоп!":
-            keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-            buttons = ["Химия", "Русский", "Биология"]
-            keyboard.add(*buttons)
-        else:
-            await message.answer("Неправильно!")
-
-    await message.reply(task)
+    def run_bot(self):
+        self.bot.infinity_polling()
 
 
-@dp.message_handler(Text(equals="Биология"))
-async def biology(message: types.Message):
-    task, answ = get_random_task(biology_tasks)
-    print(answ)
-
-    @dp.message_handler()
-    async def answer(message: types.Message):
-        if message.text == answ.strip():
-            await message.answer("Правильно!")
-        elif message.text == "Стоп!":
-            keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-            buttons = ["Химия", "Русский", "Биология"]
-            keyboard.add(*buttons)
-        else:
-            await message.answer("Неправильно!")
-
-    await message.reply(task)
-
-
-@dp.message_handler(Text(equals="Профиль"))
-async def send_profile_info(message: types.Message):
-    photo = create_img(user)
-    await bot.send_photo(message.from_user.id, photo)
-    await message.answer(f"Баланс: {user.money}\nСытость: {user.saturation}")
-
-
-
-if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
+if __name__ == "__main__":
+    bot = Bot()
+    bot.run_bot()
